@@ -8,6 +8,7 @@ import columnsRouter from './routes/columns';
 import cardsRouter from './routes/cards';
 import labelsRouter from './routes/labels';
 import checklistsRouter from './routes/checklists';
+import activitiesRouter from './routes/activities';
 import pool from './db';
 
 dotenv.config();
@@ -58,6 +59,7 @@ app.use('/api/v1', columnsRouter);
 app.use('/api/v1', cardsRouter);
 app.use('/api/v1', labelsRouter);
 app.use('/api/v1', checklistsRouter);
+app.use('/api/v1', activitiesRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
