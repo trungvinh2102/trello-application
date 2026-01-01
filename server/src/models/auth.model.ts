@@ -116,12 +116,26 @@ export class BoardMemberModel {
     return result.rows[0].role;
   }
 
-  static async findByBoard(boardId: number): Promise<Array<{ user_id: number; username: string; email: string; role: string }>> {
+  static async findByBoard(
+    boardId: number
+  ): Promise<
+    Array<{
+      id: number;
+      user_id: number;
+      username: string;
+      email: string;
+      full_name: string | null;
+      avatar_url: string | null;
+      role: string;
+      joined_at: Date;
+    }>
+  > {
     const result = await pool.query(
-      `SELECT bm.user_id, u.username, u.email, bm.role
+      `SELECT bm.id, bm.user_id, u.username, u.email, u.full_name, u.avatar_url, bm.role, bm.joined_at
        FROM board_members bm
        JOIN users u ON bm.user_id = u.id
-       WHERE bm.board_id = $1`,
+       WHERE bm.board_id = $1
+       ORDER BY bm.joined_at ASC`,
       [boardId]
     );
 
@@ -138,5 +152,63 @@ export class BoardMemberModel {
     );
 
     return result.rows;
+  }
+
+  static async create(boardId: number, userId: number, role: string): Promise<any> {
+    const result = await pool.query(
+      `INSERT INTO board_members (board_id, user_id, role)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [boardId, userId, role]
+    );
+
+    return result.rows[0];
+  }
+
+  static async updateRole(boardId: number, userId: number, role: string): Promise<any | null> {
+    const result = await pool.query(
+      `UPDATE board_members 
+       SET role = $1 
+       WHERE board_id = $2 AND user_id = $3
+       RETURNING *`,
+      [role, boardId, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    return result.rows[0];
+  }
+
+  static async delete(boardId: number, userId: number): Promise<boolean> {
+    const result = await pool.query(
+      'DELETE FROM board_members WHERE board_id = $1 AND user_id = $2',
+      [boardId, userId]
+    );
+
+    return (result.rowCount || 0) > 0;
+  }
+
+  static async findByBoardAndUser(boardId: number, userId: number): Promise<any | null> {
+    const result = await pool.query(
+      'SELECT * FROM board_members WHERE board_id = $1 AND user_id = $2',
+      [boardId, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    return result.rows[0];
+  }
+
+  static async isMember(boardId: number, userId: number): Promise<boolean> {
+    const result = await pool.query(
+      'SELECT id FROM board_members WHERE board_id = $1 AND user_id = $2',
+      [boardId, userId]
+    );
+
+    return result.rows.length > 0;
   }
 }

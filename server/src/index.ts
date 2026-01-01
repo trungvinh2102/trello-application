@@ -4,6 +4,10 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import boardsRouter from './routes/boards';
 import authRouter from './routes/auth.routes';
+import columnsRouter from './routes/columns';
+import cardsRouter from './routes/cards';
+import labelsRouter from './routes/labels';
+import checklistsRouter from './routes/checklists';
 import pool from './db';
 
 dotenv.config();
@@ -48,8 +52,12 @@ app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'Trello API Server' });
 });
 
-app.use('/api/auth', authRouter);
-app.use('/api', boardsRouter);
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1', boardsRouter);
+app.use('/api/v1', columnsRouter);
+app.use('/api/v1', cardsRouter);
+app.use('/api/v1', labelsRouter);
+app.use('/api/v1', checklistsRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

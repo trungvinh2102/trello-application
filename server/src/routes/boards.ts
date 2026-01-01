@@ -1,30 +1,19 @@
 import { Router } from 'express';
-import pool from '../db';
+import { BoardController, BoardMemberController } from '../controllers/board.controller';
+import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
 
-router.get('/boards', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM boards ORDER BY created_at DESC');
-    res.json(result.rows);
-  } catch (error) {
-    console.error('Error fetching boards:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.get('/boards', authMiddleware, BoardController.getAllBoards);
+router.get('/boards/:id', authMiddleware, BoardController.getBoard);
+router.post('/boards', authMiddleware, BoardController.createBoard);
+router.put('/boards/:id', authMiddleware, BoardController.updateBoard);
+router.delete('/boards/:id', authMiddleware, BoardController.deleteBoard);
 
-router.post('/boards', async (req, res) => {
-  try {
-    const { title, description } = req.body;
-    const result = await pool.query(
-      'INSERT INTO boards (title, description) VALUES ($1, $2) RETURNING *',
-      [title, description]
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (error) {
-    console.error('Error creating board:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.get('/boards/:id/members', authMiddleware, BoardMemberController.getMembers);
+router.post('/boards/:id/members', authMiddleware, BoardMemberController.addMember);
+router.put('/boards/:id/members/:userId', authMiddleware, BoardMemberController.updateMemberRole);
+router.delete('/boards/:id/members/:userId', authMiddleware, BoardMemberController.removeMember);
+router.delete('/boards/:id/members/leave', authMiddleware, BoardMemberController.leaveBoard);
 
 export default router;
