@@ -1,0 +1,31 @@
+{
+  "name": "opencode-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["client", "server"],
+  "scripts": {
+    "install:all": "yarn install",
+    "dev": "concurrently \"yarn workspace client dev\" \"yarn workspace server dev\" --names \"client,server\" --prefix-colors \"blue,green\"",
+    "dev:client": "yarn workspace client dev",
+    "dev:server": "yarn workspace server dev",
+    "build": "yarn workspaces foreach -ptv run build",
+    "build:client": "yarn workspace client build",
+    "build:server": "yarn workspace server build",
+    "start:server": "yarn workspace server start",
+    "typecheck": "yarn workspaces foreach -ptv run typecheck",
+    "typecheck:client": "yarn workspace client typecheck",
+    "lint": "yarn workspaces foreach -ptv run lint",
+    "lint:fix": "yarn workspaces foreach -ptv run lint:fix",
+    "format": "yarn workspaces foreach -ptv run format",
+    "format:check": "yarn workspaces foreach -ptv run format:check"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.9.3",
+    "@types/node": "^25.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=1.22.0"
+  }
+}
