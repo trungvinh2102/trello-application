@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Development
+  postgres-dev:
+    image: postgres:16-alpine
+    container_name: trello_postgres_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: trello_user
+      POSTGRES_PASSWORD: trello_password
+      POSTGRES_DB: trello_system
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./server/src/migrations/002_full_schema.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - trello_dev_network
+
+  # Backend Server for Development
+  server-dev:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+      target: deps
+    container_name: trello_server_dev
+    restart: unless-stopped
+    depends_on:
+      - postgres-dev
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      DATABASE_URL: postgresql://trello_user:trello_password@postgres-dev:5432/trello_system
+      CORS_ORIGIN: http://localhost:5173
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    command: npm run dev
+    networks:
+      - trello_dev_network
+
+  # Frontend Client for Development
+  client-dev:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+      target: deps
+    container_name: trello_client_dev
+    restart: unless-stopped
+    depends_on:
+      - server-dev
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    command: npm run dev
+    networks:
+      - trello_dev_network
+
+volumes:
+  postgres_dev_data:
+    driver: local
+
+networks:
+  trello_dev_network:
+    driver: bridge

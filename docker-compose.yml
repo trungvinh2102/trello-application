@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: trello_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: trello_user
+      POSTGRES_PASSWORD: trello_password
+      POSTGRES_DB: trello_system
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./server/src/migrations/002_full_schema.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - trello_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trello_user -d trello_system"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Server
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: trello_server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: postgresql://trello_user:trello_password@postgres:5432/trello_system
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server/src:/app/src
+      - /app/node_modules
+    networks:
+      - trello_network
+    command: npm run dev
+
+  # Frontend Client
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: trello_client
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "3000:80"
+    networks:
+      - trello_network
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  trello_network:
+    driver: bridge
