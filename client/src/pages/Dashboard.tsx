@@ -1,15 +1,7 @@
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/layouts/AppSidebar';
-import { SiteHeader } from './components/SiteHeader';
 import { SectionCards } from './components/SectionCards';
 import { ChartAreaInteractive } from './components/ChartAreaInteractive';
 import { DataTable } from './components/DataTable';
-import data from './data/data.json'
-
-interface CustomStyle extends React.CSSProperties {
-  '--sidebar-width'?: string;
-  '--header-height'?: string;
-}
+import data from './data/data.json';
 
 export default function Dashboard() {
   return (

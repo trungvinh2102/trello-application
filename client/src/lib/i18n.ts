@@ -63,13 +63,10 @@ const resources = {
         english: 'English',
       },
       dashboard: {
-        header: {
-          title: 'Documents',
-        },
+        header: {},
         sidebar: {
-          companyName: 'Acme Inc.',
+          companyName: 'Trello Inc.',
           navMain: {
-            quickCreate: 'Quick Create',
             inbox: 'Inbox',
             dashboard: 'Dashboard',
             boards: 'Boards',
@@ -242,9 +239,8 @@ const resources = {
           title: 'Tài liệu',
         },
         sidebar: {
-          companyName: 'Acme Inc.',
+          companyName: 'Trello Inc.',
           navMain: {
-            quickCreate: 'Tạo nhanh',
             inbox: 'Hộp thư',
             dashboard: 'Dashboard',
             boards: 'Boards',
