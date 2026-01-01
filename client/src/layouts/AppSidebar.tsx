@@ -20,10 +20,6 @@ import {
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-import { NavDocuments } from '@/components/common/nav/NavDocuments';
-import { NavMain } from '@/components/common/nav/NavMain';
-import { NavSecondary } from '@/components/common/nav/NavSecondary';
-import { NavUser } from '@/components/common/nav/NavUser';
 import {
   Sidebar,
   SidebarContent,
@@ -33,6 +29,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { NavMain } from '@/components/common/nav/NavMain';
+import { NavDocuments } from '@/components/common/nav/NavDocuments';
+import { NavSecondary } from '@/components/common/nav/NavSecondary';
+import { NavUser } from '@/components/common/nav/NavUser';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { t } = useTranslation();
