@@ -1,6 +1,7 @@
 import { BoardModel } from '../models/board.model';
 import { BoardMemberModel } from '../models/auth.model';
 import { UserModel } from '../models/auth.model';
+import { ColumnModel } from '../models/column.model';
 import { BoardCreateInput, BoardUpdateInput, BoardMemberCreateInput, BoardWithMembers } from '../types/board';
 
 export class BoardService {
@@ -9,7 +10,7 @@ export class BoardService {
     return boards;
   }
 
-  static async getBoardById(boardId: number, userId: number): Promise<BoardWithMembers | null> {
+  static async getBoardById(boardId: number, userId: number, includeCards = true): Promise<BoardWithMembers | null> {
     const board = await BoardModel.findById(boardId);
 
     if (!board) {
@@ -35,9 +36,12 @@ export class BoardService {
       avatar_url: member.avatar_url,
     }));
 
+    const columns = includeCards ? await ColumnModel.findAllByBoardWithCards(boardId) : await ColumnModel.findAllByBoard(boardId);
+
     return {
       ...board,
       members: membersWithUserInfo,
+      columns,
     };
   }
 

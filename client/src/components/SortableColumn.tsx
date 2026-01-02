@@ -27,7 +27,7 @@ export default function SortableColumn({ column }: SortableColumnProps) {
     >
       <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
         <span className="text-muted-foreground">≡</span>
-        {column.title}
+        {column.name}
         <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
           {column.cards?.length || 0}
         </span>
@@ -38,7 +38,7 @@ export default function SortableColumn({ column }: SortableColumnProps) {
             key={card.id}
             className="bg-background p-3 rounded border border-border hover:shadow-md transition-shadow cursor-pointer"
           >
-            <h4 className="font-medium">{card.title}</h4>
+            <h4 className="font-medium">{card.name}</h4>
             {card.description && (
               <p className="text-sm text-muted-foreground mt-1">{card.description}</p>
             )}

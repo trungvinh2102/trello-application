@@ -31,7 +31,8 @@ export class BoardController {
         return;
       }
 
-      const board = await BoardService.getBoardById(boardId, req.user.id);
+      const includeCards = req.query.includeCards !== 'false';
+      const board = await BoardService.getBoardById(boardId, req.user.id, includeCards);
       res.json(board);
     } catch (error) {
       if (error instanceof Error) {

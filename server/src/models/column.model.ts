@@ -14,6 +14,32 @@ export class ColumnModel {
     return result.rows;
   }
 
+  static async findAllByBoardWithCards(boardId: number): Promise<(Column & { cards: Card[] })[]> {
+    const columnsResult = await pool.query(
+      `SELECT id, name, board_id, position, ordered_columns_id, created_at, updated_at
+       FROM columns
+       WHERE board_id = $1
+       ORDER BY position ASC`,
+      [boardId]
+    );
+
+    const columns = columnsResult.rows;
+
+    for (const column of columns) {
+      const cardsResult = await pool.query(
+        `SELECT id, name, description, board_id, column_id, due_date, completed, position, created_at, updated_at
+         FROM cards
+         WHERE column_id = $1
+         ORDER BY position ASC`,
+        [column.id]
+      );
+
+      column.cards = cardsResult.rows;
+    }
+
+    return columns;
+  }
+
   static async findAllByBoardWithCardsCount(boardId: number): Promise<ColumnWithCards[]> {
     const result = await pool.query(
       `SELECT 

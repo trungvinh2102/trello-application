@@ -143,19 +143,50 @@ export class CardModel {
   }
 
   static async moveToColumn(cardId: number, targetColumnId: number, position: number): Promise<Card | null> {
-    const result = await pool.query(
-      `UPDATE cards 
-       SET column_id = $1, position = $2
-       WHERE id = $3
-       RETURNING *`,
-      [targetColumnId, position, cardId]
-    );
+    const card = await this.findById(cardId);
+    if (!card) return null;
 
-    if (result.rows.length === 0) {
-      return null;
+    const sourceColumnId = card.column_id;
+    const oldPosition = card.position;
+
+    const client = await pool.connect();
+
+    try {
+      await client.query('BEGIN');
+
+      if (sourceColumnId !== targetColumnId) {
+        await client.query(
+          'UPDATE cards SET position = position - 1 WHERE column_id = $1 AND position > $2',
+          [sourceColumnId, oldPosition]
+        );
+      }
+
+      await client.query(
+        'UPDATE cards SET position = position + 1 WHERE column_id = $1 AND position >= $2 AND id != $3',
+        [targetColumnId, position, cardId]
+      );
+
+      const result = await client.query(
+        `UPDATE cards 
+         SET column_id = $1, position = $2
+         WHERE id = $3
+         RETURNING *`,
+        [targetColumnId, position, cardId]
+      );
+
+      await client.query('COMMIT');
+
+      if (result.rows.length === 0) {
+        return null;
+      }
+
+      return result.rows[0];
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
     }
-
-    return result.rows[0];
   }
 
   static async duplicate(

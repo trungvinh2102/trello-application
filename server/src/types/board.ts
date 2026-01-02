@@ -1,3 +1,5 @@
+import type { Column } from './column';
+
 export type BoardVisibility = 'private' | 'workspace' | 'public';
 export type BoardMemberRole = 'admin' | 'member' | 'observer';
 
@@ -66,6 +68,7 @@ export interface BoardMemberResponse {
 
 export interface BoardWithMembers extends Board {
   members: BoardMemberResponse[];
+  columns?: (Column & { cards?: any[] })[];
 }
 
 export interface BoardUser {
